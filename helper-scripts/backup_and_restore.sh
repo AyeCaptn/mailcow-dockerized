@@ -25,6 +25,21 @@ if [[ ! ${BACKUP_LOCATION} =~ ^/ ]]; then
   exit 1
 fi
 
+if [[ -z "${AWS_KEY}" ]]; then
+  echo "Environment variable AWS_KEY needs to be defined."
+  exit 1
+fi
+
+if [[ -z "${AWS_SECRET}" ]]; then
+  echo "Environment variable AWS_SECRET needs to be defined."
+  exit 1
+fi
+
+if [[ -z "${S3_BUCKET}" ]]; then
+  echo "Environment variable S3_BUCKET needs to be defined."
+  exit 1
+fi
+
 if [[ -f ${BACKUP_LOCATION} ]]; then
   echo "${BACKUP_LOCATION} is a file!"
   exit 1
@@ -103,9 +118,28 @@ function backup() {
     esac
     shift
   done
+  echo "Pushing backup in ${BACKUP_LOCATION} to ${S3_BUCKET} on S3"
+  echo 
+  docker run --rm \
+    -e ACCESS_KEY=${AWS_KEY} \
+    -e SECRET_KEY=${AWS_SECRET} \
+    -e S3_PATH=s3://${S3_BUCKET}/ \
+    -v ${BACKUP_LOCATION}:/data \
+    istepanov/backup-to-s3 no-cron
+  echo "Removing local folder ${BACKUP_LOCATION}/mailcow-${DATE}"
+  echo 
+  rm -rf ${BACKUP_LOCATION}/mailcow-${DATE}
 }
 
 function restore() {
+  echo "Downloading latest backup into ${BACKUP_LOCATION} from ${S3_BUCKET} on S3"
+  echo 
+  docker run --rm \
+    -e ACCESS_KEY=${AWS_KEY} \
+    -e SECRET_KEY=${AWS_SECRET} \
+    -e S3_PATH=s3://${S3_BUCKET}/ \
+    -v ${BACKUP_LOCATION}:/data:rw  \
+    istepanov/backup-to-s3 get
   docker stop $(docker ps -qf name=watchdog-mailcow)
   RESTORE_LOCATION="${1}"
   shift
