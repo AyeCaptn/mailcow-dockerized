@@ -171,13 +171,13 @@ function backup() {
 
   if [ -n "$SLACK_WEBHOOK_URL" ]; then
       FILE_COUNT=$(ls -1q $BACKUP_LOCATION/mailcow-$DATE/ | wc -l)
-      if [[ $FILE_COUNT -eq '5' ]]; then
+      if [[ $FILE_COUNT -eq '6' ]]; then
           ICON=":white_check_mark:"
       else
           ICON=":no_entry:"
       fi
 
-      json="{\"channel\": \"$SLACK_CHANNEL\", \"username\":\"$HOSTNAME\", \"icon_emoji\":\":package:\", \"text\": \"*Backup completed:*\n$ICON $FILE_COUNT out of 5 items backed up\"}}"
+      json="{\"channel\": \"$SLACK_CHANNEL\", \"username\":\"$HOSTNAME\", \"icon_emoji\":\":package:\", \"text\": \"*Backup completed:*\n$ICON $FILE_COUNT out of 6 items backed up\"}}"
 
       curl -s -d "payload=$json" "$SLACK_WEBHOOK_URL"
   fi
