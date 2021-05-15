@@ -279,6 +279,9 @@ USE_WATCHDOG=y
 # Notify about banned IP (includes whois lookup)
 WATCHDOG_NOTIFY_BAN=n
 
+# Subject for watchdog mails. Defaults to "Watchdog ALERT" followed by the error message.
+#WATCHDOG_SUBJECT=
+
 # Checks if mailcow is an open relay. Requires a SAL. More checks will follow.
 # https://www.servercow.de/mailcow?lang=en
 # https://www.servercow.de/mailcow?lang=de
@@ -332,6 +335,13 @@ SOGO_EXPIRE_SESSION=480
 DOVECOT_MASTER_USER=
 # LEAVE EMPTY IF UNSURE
 DOVECOT_MASTER_PASS=
+
+# Let's Encrypt registration contact information
+# Optional: Leave empty for none
+# This value is only used on first order!
+# Setting it at a later point will require the following steps:
+# https://mailcow.github.io/mailcow-dockerized-docs/debug-reset-tls/
+ACME_CONTACT=
 
 EOF
 

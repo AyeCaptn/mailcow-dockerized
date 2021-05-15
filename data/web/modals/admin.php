@@ -59,8 +59,8 @@ if (!isset($_SESSION['mailcow_cc_role'])) {
             <div class="form-group">
               <label class="control-label col-sm-2" for="username"><?=$lang['admin']['username'];?>:</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" name="username" required>
-                &rdsh; <kbd>a-z A-Z - _ .</kbd>
+                <input type="text" class="form-control" name="username" onkeyup="this.value = this.value.toLowerCase();" required>
+                &rdsh; <kbd>a-z - _ .</kbd>
               </div>
             </div>
             <div class="form-group">
@@ -171,8 +171,8 @@ if (!isset($_SESSION['mailcow_cc_role'])) {
             <div class="form-group">
               <label class="control-label col-sm-2" for="username"><?=$lang['admin']['username'];?>:</label>
               <div class="col-sm-10">
-                <input type="text" class="form-control" name="username" required>
-                &rdsh; <kbd>a-z A-Z - _ .</kbd>
+                <input type="text" class="form-control" name="username" onkeyup="this.value = this.value.toLowerCase();" required>
+                &rdsh; <kbd>a-z - _ .</kbd>
               </div>
             </div>
             <div class="form-group">
@@ -220,6 +220,13 @@ if (!isset($_SESSION['mailcow_cc_role'])) {
               <label class="control-label col-sm-2" for="mail_from"><?=$lang['admin']['relay_from'];?></label>
               <div class="col-sm-10">
                 <input type="text" class="form-control" name="mail_from" placeholder="relay@example.org">
+              </div>
+            </div>
+            <div class="form-group">
+              <label class="control-label col-sm-2" for="mail_rcpt"><?=$lang['admin']['relay_rcpt'];?></label>
+              <div class="col-sm-10">
+                <input type="text" class="form-control" name="mail_rcpt" placeholder="null@hosted.mailcow.de" value="null@hosted.mailcow.de">
+                <p class="help-block"><?=$lang['admin']['transport_test_rcpt_info'];?></p>
               </div>
             </div>
             <div class="form-group">

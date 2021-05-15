@@ -90,14 +90,6 @@ $AVAILABLE_LANGUAGES = array('ca', 'cs', 'da', 'de', 'en', 'es', 'fi', 'fr', 'hu
 // WARNING: Only lumen is loaded locally. Enabling any other theme, will download external sources.
 $DEFAULT_THEME = 'lumen';
 
-// Password complexity as regular expression
-// Min. 6 characters
-$PASSWD_REGEP = '.{6,}';
-// Min. 6 characters, which must include at least one uppercase letter, one lowercase letter and one number
-// $PASSWD_REGEP = '^(?=.*[A-Z])(?=.*[0-9])(?=.*[a-z]).{6,}$';
-// Min. 6 characters, which must include at least one letter and one number
-// $PASSWD_REGEP = '^(?=.*[0-9])(?=.*[A-Za-z]).{6,}$';
-
 // Show DKIM private keys - false by default
 $SHOW_DKIM_PRIV_KEYS = false;
 
@@ -123,9 +115,6 @@ $SESSION_LIFETIME = 10800;
 
 // Label for OTP devices
 $OTP_LABEL = "mailcow UI";
-
-// Default "to" address in relay test tool
-$RELAY_TO = "null@hosted.mailcow.de";
 
 // How long to wait (in s) for cURL Docker requests
 $DOCKER_TIMEOUT = 60;
