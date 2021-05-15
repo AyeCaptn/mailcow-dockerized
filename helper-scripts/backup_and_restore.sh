@@ -37,6 +37,11 @@ if [[ -z "${AWS_SECRET}" ]]; then
   exit 1
 fi
 
+if [[ -z "$AWS_REGION" ]]; then
+    echo "Environment variable AWS_REGION needs to be defined."
+    exit 1
+fi
+
 if [[ -z "${S3_BUCKET}" ]]; then
   echo "Environment variable S3_BUCKET needs to be defined."
   exit 1
@@ -160,14 +165,16 @@ function backup() {
     esac
     shift
   done
-  echo "Pushing backup in ${BACKUP_LOCATION} to ${S3_BUCKET} on S3"
-  echo 
+
+  echo "Pushing backup in $BACKUP_LOCATION to $S3_BUCKET on S3"
+  echo
+
   docker run --rm \
-    -e ACCESS_KEY=${AWS_KEY} \
-    -e SECRET_KEY=${AWS_SECRET} \
-    -e S3_PATH=s3://${S3_BUCKET}/ \
-    -v ${BACKUP_LOCATION}:/data \
-    istepanov/backup-to-s3 no-cron
+      -e AWS_ACCESS_KEY_ID="$AWS_KEY" \
+      -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET" \
+      -e AWS_DEFAULT_REGION="$AWS_REGION" \
+      -v "$BACKUP_LOCATION":/data \
+      amazon/aws-cli s3 cp /data/ "s3://$S3_BUCKET/" --recursive
 
   if [ -n "$SLACK_WEBHOOK_URL" ]; then
       FILE_COUNT=$(ls -1q $BACKUP_LOCATION/mailcow-$DATE/ | wc -l)
@@ -177,12 +184,31 @@ function backup() {
           ICON=":no_entry:"
       fi
 
-      json="{\"channel\": \"$SLACK_CHANNEL\", \"username\":\"$HOSTNAME\", \"icon_emoji\":\":package:\", \"text\": \"*Backup completed:*\n$ICON $FILE_COUNT out of 7 items backed up\"}}"
+      json="{\"channel\": \"$SLACK_CHANNEL\", \"username\":\"$HOSTNAME\", \"icon_emoji\":\":package:\", \"text\": \"*Backup completed:*\n$ICON $FILE_COUNT out of 7 items backed up\"}"
 
       curl -s -d "payload=$json" "$SLACK_WEBHOOK_URL"
   fi
+
+  echo "Clean up unused backups"
+  echo
+  docker run --rm \
+      -e AWS_ACCESS_KEY_ID="$AWS_KEY" \
+      -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET" \
+      -e AWS_DEFAULT_REGION="$AWS_REGION" \
+      amazon/aws-cli s3 ls "s3://$S3_BUCKET/" | sort | head -n -5 | while 
+      read -r line ; do
+          key=$( echo "$line" | cut -d ' ' -f2 | xargs )
+          echo "Removing $key"
+          docker run --rm \
+              -e AWS_ACCESS_KEY_ID="$AWS_KEY" \
+              -e AWS_SECRET_ACCESS_KEY="$AWS_SECRET" \
+              -e AWS_DEFAULT_REGION=eu-central-1 \
+              amazon/aws-cli s3 rm "s3://$S3_BUCKET/$key" --recursive
+      done
+
   echo "Removing local folder ${BACKUP_LOCATION}/mailcow-${DATE}"
   echo 
+
   rm -rf ${BACKUP_LOCATION}/mailcow-${DATE}
 }
 
